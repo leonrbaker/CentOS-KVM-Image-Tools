@@ -61,7 +61,7 @@ fi
 IMGNAME=$1
 
 # default kickstart file
-KICKSTART="CentOS-6.6-x86_64-minimal.cfg"
+KICKSTART="CentOS-6.6-x86_64-MailScanner.cfg"
 
 # VM image file extension
 EXT="qcow2"
@@ -96,16 +96,16 @@ virt-sysprep --format qcow2 --no-selinux-relabel -a $IMGNAME.$EXT
 #EOF
 
 # make a virtual machine disk sparse
-virt-sparsify --compress --convert qcow2 --format qcow2 $IMGNAME.$EXT $IMGNAME-sparsified.$EXT
+#virt-sparsify --compress --convert qcow2 --format qcow2 $IMGNAME.$EXT $IMGNAME-sparsified.$EXT
 
 # remove original image
-rm -rf $IMGNAME.$EXT
+#rm -rf $IMGNAME.$EXT
 
 # rename sparsified
-mv $IMGNAME-sparsified.$EXT $IMGNAME.$EXT
+#mv $IMGNAME-sparsified.$EXT $IMGNAME.$EXT
 
 # set correct ownership for the VM image file
-chown qemu:qemu $IMGNAME.$EXT
+#chown qemu:qemu $IMGNAME.$EXT
 
 echo "Process Completed. Use the 'virt start $IMGNAME' command to start the newly created VM."
 
