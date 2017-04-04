@@ -61,7 +61,7 @@ fi
 IMGNAME=$1
 
 # default kickstart file
-KICKSTART="CentOS-7.3-x86_64-minimal.cfg"
+KICKSTART="CentOS-6.6-x86_64-minimal.cfg"
 
 # VM image file extension
 EXT="qcow2"
@@ -71,27 +71,38 @@ echo "Generating VM ..."
 # create image file
 virt-install \
 --name $IMGNAME \
---ram 1536 \
+--ram 1024 \
 --cpu host \
 --vcpus 1 \
 --nographics \
 --os-type=linux \
---os-variant=centos7.0 \
---location=http://orion.upgradenet.co.za/centos/7/os/x86_64 \
+--os-variant=centos6.5 \
+--location=http://orion.upgradenet.co.za/centos/6/os/x86_64 \
 --initrd-inject=../kickstarts/$KICKSTART \
 --extra-args="ks=file:/$KICKSTART text console=tty0 utf8 console=ttyS0,115200" \
---disk path=/home/leon/Downloads/images/$IMGNAME.$EXT,size=10,bus=virtio,format=qcow2 \
+--disk path=/var/lib/libvirt/images/$IMGNAME.$EXT,size=10,bus=virtio,format=qcow2 \
 --force \
 --noreboot
 
-#--disk path=/var/lib/libvirt/images/$IMGNAME.$EXT,size=10,bus=virtio,format=qcow2 \
-
 # change directory
-#cd /var/lib/libvirt/images/
-cd /home/leon/Downloads/images/
+cd /var/lib/libvirt/images/
 
 # reset, unconfigure a virtual machine so clones can be made
 virt-sysprep --format qcow2 --no-selinux-relabel -a $IMGNAME.$EXT
+
+# Add leonux repo and use our local CentOS mirror
+#curl -o /tmp/leonux.repo https://yum.leonux.co.za/leonux.repo
+guestfish -i $IMGNAME.$EXT <<EOF
+#copy-in /tmp/leonux.repo /etc/yum.repos.d
+sh "sed -i s/^mirrorlist=/#mirrorlist=/ /etc/yum.repos.d/CentOS-Base.repo"
+sh "sed -i s/^#baseurl=/baseurl=/ /etc/yum.repos.d/CentOS-Base.repo"
+aug-init / 0
+aug-set /files/etc/yum.repos.d/CentOS-Base.repo/base/baseurl http://orion.upgradenet.co.za/centos/6/os/x86_64
+aug-set /files/etc/yum.repos.d/CentOS-Base.repo/updates/baseurl http://orion.upgradenet.co.za/centos/6/updates/x86_64
+aug-save
+EOF
+#sh "echo priority=50 >> /etc/yum.repos.d/leonux.repo"
+#rm -f /tmp/leonux.repo
 
 # make a virtual machine disk sparse
 virt-sparsify --compress --convert qcow2 --format qcow2 $IMGNAME.$EXT $IMGNAME-sparsified.$EXT
