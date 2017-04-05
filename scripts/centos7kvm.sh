@@ -80,7 +80,7 @@ virt-install \
 --location=http://orion.upgradenet.co.za/centos/7/os/x86_64 \
 --initrd-inject=../kickstarts/$KICKSTART \
 --extra-args="ks=file:/$KICKSTART text console=tty0 utf8 console=ttyS0,115200" \
---disk path=/home/leon/Downloads/images/$IMGNAME.$EXT,size=10,bus=virtio,format=qcow2 \
+--disk path=/home/leon/centos/$IMGNAME.$EXT,size=10,bus=virtio,format=qcow2 \
 --force \
 --noreboot
 
@@ -88,7 +88,7 @@ virt-install \
 
 # change directory
 #cd /var/lib/libvirt/images/
-cd /home/leon/Downloads/images/
+cd /home/leon/centos/
 
 # reset, unconfigure a virtual machine so clones can be made
 virt-sysprep --format qcow2 --no-selinux-relabel -a $IMGNAME.$EXT
